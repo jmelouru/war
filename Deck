@@ -1,0 +1,46 @@
+package mainpackage;
+
+import java.util.ArrayList;
+
+public class Deck
+{
+    private ArrayList<Card> cards = new ArrayList<Card>();
+    
+    public Deck()
+    {
+        for(int suit = 0; suit < 4; suit++)
+            for(int value = 2; value < 15; value++)
+            {
+                cards.add(new Card(value, suit));
+                
+            }
+        
+    }
+    
+    //Get
+    public Card deal()
+    {
+        if(cards.size() > 0)
+            return cards.remove(0);
+            
+        return null;
+        
+    }
+    public int left()
+    {
+        return cards.size();
+    }
+    
+    //Miscellaneous
+    public void shuffle()
+    {
+        for(int n = 0; n < cards.size(); n++)
+        {
+            int index = (int)(Math.random() * 52);
+            
+            cards.set(n, cards.set(index, cards.get(n)));
+        }
+        
+    }
+
+}//End class
