@@ -1,0 +1,194 @@
+/**
+ * War card game.
+ * Started 3/21/18.
+ * 
+ * @author Juan Melo
+ * @version 3/28/18
+ */
+
+import java.applet.Applet;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class War extends Applet implements MouseListener
+{
+    ArrayList<Card> player = new ArrayList<Card>();
+    ArrayList<Card> cpu = new ArrayList<Card>();
+    ArrayList<Card> playerPile = new ArrayList<Card>();
+    ArrayList<Card> cpuPile = new ArrayList<Card>();
+
+    Deck deck = new Deck();
+
+    boolean play;
+    int winner; //0 playing, 1 cpu, 2 player
+    Image table;
+    
+
+    public void init()
+    {
+        this.resize(499, 515);
+        this.setLayout(null);
+        this.addMouseListener(this);
+
+        table = getImage(getCodeBase(), "images/greenFelt.jpg"); //credit pokerchip.gr
+        
+        deck.shuffle();
+        
+        //Splits deck in half, sets them face down
+        for(int n = 0; n < 26; n++)
+        {
+            player.add(deck.deal());
+            player.get(n).setFace(false);
+
+            cpu.add(deck.deal());
+            cpu.get(n).setFace(false);
+
+        }
+
+    }
+
+    public void paint(Graphics g)
+    {
+        g.drawImage(table, 0, 0, 499, 515, this);
+
+        //Displaying decks
+        if(cpu.size() > 0)
+            for(int n = 0; n < cpu.size(); n++)
+                g.drawImage(cpu.get(n).getImage(this), 214, (14 + 1 * n / 2), this);
+        if(player.size() > 0)
+            for(int n = 0; n < player.size(); n++)
+                g.drawImage(player.get(n).getImage(this), 214, (390 + 1 * n / 2), this);
+
+        //Displaying piles
+        for(int n = 0; n < cpuPile.size(); n++)
+        {
+            int x = 214 - (10 * (cpuPile.size() - 1));
+            g.drawImage(cpuPile.get(n).getImage(this), (x + 20 * n), 134, this); //Decks are visualy resized
+
+        }
+        for(int n = 0; n < playerPile.size(); n++)
+        {
+            int x = 214 - (10 * (playerPile.size() - 1));
+            g.drawImage(playerPile.get(n).getImage(this), (x + 20 * n), 270, this);
+
+        }
+        
+        g.setColor(Color.white);
+        if(winner == 1)
+            g.drawString("CPU WON", 220, 252);
+            else if(winner == 2)
+                g.drawString("PLAYER WON", 210, 252);
+    }
+
+    /**
+     * Removes elements from cpuPile and playerPile, ads them to list
+     * 
+     * @param ArrayList<Cards> list
+     */
+    public void clear(ArrayList<Card> list)
+    {
+        while(cpuPile.size() > 0)
+        {
+            cpuPile.get(0).setFace(false);
+            list.add(cpuPile.remove(0));
+
+            playerPile.get(0).setFace(false);
+            list.add(playerPile.remove(0));
+
+        }
+
+    }
+
+    /**
+     * Compares cards on cpuPile and playerPile (last elements).
+     * if(same value): set cards 0 - 2 in cpu and player to be face up.
+     * if(cpu > player): calls method clear(cpu).
+     * if(cpu < player): calls method clear(player).
+     * 
+     */
+    public void check()
+    {
+        boolean faceUp = playerPile.get(playerPile.size() - 1).getFace();
+
+        if(faceUp && (cpuPile.get(cpuPile.size() - 1).compareTo(playerPile.get(playerPile.size() - 1)) == 0)) //War
+        {
+            for(int n = 0; n < 3; n++)
+            {
+                if(cpu.size() > 0)
+                    cpu.get(n).setFace(true);
+                if(player.size() > 0)
+                    player.get(n).setFace(true);
+
+            }
+
+        }else if(faceUp) //So it won't make an unnecessary check when there is war
+        {
+            if(play) //is a card being compared to another card?
+            {
+                if(faceUp && (cpuPile.get(cpuPile.size() - 1).compareTo(playerPile.get(playerPile.size() - 1)) > 0)) //Cpu won
+                    clear(cpu);
+                    else if(faceUp && (cpuPile.get(cpuPile.size() - 1).compareTo(playerPile.get(playerPile.size() - 1)) < 0)) //Player won
+                    clear(player);
+            
+                play = false;
+            
+            }else
+                play = true;
+
+        }
+
+        if(!play)
+            if(cpu.size() == 0)
+                winner = 2;
+                else if(player.size() == 0)
+                winner = 1;
+
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {
+        int x = e.getX();
+        int y = e.getY();
+        int limit = (390 + 1 * player.size() / 2) + 96; //pixel the deck ends
+
+        if((x >= 214 && x <= 285) && (y >= 390 && y <= limit))
+        {
+            if(!play) //only deal to piles if no cards are about to be compared
+            {
+                if(cpu.size() > 0)
+                {
+                    //Make sure cards are displayed face down if war
+                    if(cpu.get(0).getFace())
+                        cpu.get(0).setFace(false);
+                    else
+                        cpu.get(0).setFace(true);
+
+                    cpuPile.add(cpu.remove(0));
+
+                }
+                if(player.size() > 0)
+                {
+                    if(player.get(0).getFace())
+                        player.get(0).setFace(false);
+                    else
+                        player.get(0).setFace(true);
+
+                    playerPile.add(player.remove(0));
+
+                }
+            }
+
+            check();
+            repaint();
+
+        }
+
+    }
+
+    public void mouseEntered(MouseEvent e){}
+    public void mouseExited(MouseEvent e){}
+    public void mousePressed(MouseEvent e){}
+    public void mouseReleased(MouseEvent e){}
+
+}//End class
