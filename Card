@@ -1,0 +1,106 @@
+import java.awt.*;
+import java.applet.Applet;
+
+public class Card implements Comparable
+{
+    private int suit; //0 clubs, 1 diamonds, 2 hearts, 3 spades
+    private int value; //2 - 14 (11 - 14 Jack, Queen, King, Ace)
+    
+    private String valueStr[] = {"Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace"};
+    private String suitStr[] = {"Clubs", "Diamonds", "Hearts", "Spades"};
+    
+    boolean facing = true; //true up, false down
+    
+    public Card(){}//Default card joker
+    public Card(int value, int suit)
+    {
+        setSuit(suit);
+        setValue(value);
+        
+    }
+    public Card(boolean facing)
+    {
+        //joker facing down
+        this.facing = facing;
+        
+    }
+    
+    //Set
+    public void setValue(int value)
+    {
+        if(value >= 1 && value <= 14)
+            this.value = value;
+        
+    }
+    public void setSuit(int suit)
+    {
+        if(suit >= 0 && suit <= 3)
+            this.suit = suit;
+        
+    }
+    public void setFace(boolean facing)
+    {
+        this.facing = facing;
+        
+    }
+    
+    //Get
+    public int getValue()
+    {
+        return value;
+        
+    }
+    public String getValueStr()
+    {
+        if(value > 1)
+            return valueStr[value - 2];
+        
+        return "Ace";
+        
+    }
+    
+    public int getSuit()
+    {
+        return suit;
+        
+    }
+    public String getSuitStr()
+    {
+        return suitStr[suit];
+        
+    }
+    
+    public Image getImage(Applet app)
+    {
+        //Size of image is 71x96
+        
+        if(facing)
+            return app.getImage(app.getCodeBase(), "cards/c" + (suit * 13 + value) + ".gif");
+            
+        return app.getImage(app.getCodeBase(), "cards/c54.gif");
+        
+    }
+    
+    public boolean getFace()
+    {
+        return facing;
+    }
+    
+    //Miscellaneous
+    public String toString()
+    {
+        return getValueStr() + " of " + getSuitStr();
+        
+    }
+    public boolean equals(Card card)
+    {
+        return toString().equals(card.toString());
+        
+    }
+    public int compareTo(Object card)
+    {
+        return getValue() - ((Card)card).getValue();
+        
+    }
+
+}//End class
